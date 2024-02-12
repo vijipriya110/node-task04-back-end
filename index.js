@@ -2,7 +2,7 @@ import express from "express";
 import dotenv from "dotenv";
 import { studentsRouter } from "./Routers/students.js";
 import { mentorsRouter } from "./Routers/mentors.js";
-import cors from "cors"
+import cors from "cors";
 import { userRouter } from "./Routers/users.js";
 import { isAuthenicated } from "./Authntication/auth.js";
 // configure the enviornment
