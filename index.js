@@ -10,7 +10,7 @@ dotenv.config();
 const PORT = process.env.PORT
 
 const app = express();
-app.use(express.json())//middleware
+app.use(express.json())//middlewareee
 app.use(cors());
 
 app.use("/students",isAuthenicated,studentsRouter)
