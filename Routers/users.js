@@ -1,5 +1,5 @@
 import express from "express";
-import { addUser, generateJwtToken, getToken, getUser, sendEmail, updatedUserData, } from "../Controllers/users.js";
+import { addUser, deleteJwtToken, generateJwtToken, getToken, getUser, sendEmail, updatedUserData, } from "../Controllers/users.js";
 import bcrypt, { compare } from "bcrypt";
 import crypto from "crypto";
 import { getTestMessageUrl } from "nodemailer";
@@ -63,7 +63,7 @@ router.post("/login", async (req, res) => {
             return res.status(400).json({ data: "Invlid (password)Authorization.." })
         }
         // to generate jwt token
-        const token = generateJwtToken(user._id)
+        const token = await generateJwtToken(user._id)
         return res.status(200).json({ data: "loged in sucessfully", token: token })
 
 
@@ -76,17 +76,12 @@ router.post("/login", async (req, res) => {
 
 router.get("/logout", async (req, res) => {
     try {
-        //find auth token
-        const token = req.headers["x-auth-token"];
-        // console.log(token)
+        const token = req.headers["x-auth-token"]
 
-        // remove auth token
-        const removeToken = req.headers[" "];
-        console.log(removeToken)
-
-        if (!removeToken)
-
-            return res.status(200).json({ data: "Loggedout sucessfully..!" })
+        const deleteToken =  await deleteJwtToken(token)
+        if(deleteToken)
+        return res.status(200).json({data:"token deleted..!"})
+        
 
     } catch (error) {
         console.log(error)

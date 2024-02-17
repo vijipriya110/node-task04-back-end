@@ -1,5 +1,6 @@
 import jwt from "jsonwebtoken";
 
+
 export async function isAuthenicated (req,res,next){
     const token = req.headers["x-auth-token"]
         // console.log("token....",token)
@@ -13,3 +14,4 @@ export async function isAuthenicated (req,res,next){
 
 
 }
+
