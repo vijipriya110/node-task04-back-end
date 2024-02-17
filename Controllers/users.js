@@ -1,8 +1,8 @@
 import { client } from "../db.js";
 import { ObjectId } from "bson";
 import jwt from "jsonwebtoken"
-import crypto from "crypto-js";
 import nodemailer from "nodemailer";
+
 
 export function updatedUserData(id, updatedData){
   return client
@@ -11,14 +11,6 @@ export function updatedUserData(id, updatedData){
   .findOneAndUpdate({_id: new ObjectId(id)},{$set:updatedData})
 
 }
-
-export function getUserById(id){
-  return client
-  .db("basicdata")
-  .collection("users")
-  .findOne({_id: new ObjectId(id)})
-}
-
 
 export function getUser(userEmail){
     return client
@@ -46,18 +38,6 @@ export function getToken(token){
 
 }
 
-export function getTokenbyId(token){
-  return client
-  .db("basicdata")
-  .collection("users")
-  .findOne(token)
-
-}
-
-
-
-
-
 export function logoutUser(token){
     return client
     .db("basicdata")
@@ -65,26 +45,7 @@ export function logoutUser(token){
     .deleteOne(token)
 
 }
-
-export function getUserId(id){
-    return client
-    .db("basicdata")
-    .collection("users")
-    .findOne({id})
-
-}
-
-// export function resetPassword(){
-    
-//     const token = crypto.randomBytes
-//     const resetPasswordToken = crypto.createHash
-//     return resetPasswordToken, token
-
-    
-// }
-
-
-
+ 
 export const sendEmail = async (options) => {
 
         var transporter = nodemailer.createTransport({

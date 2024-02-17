@@ -9,5 +9,7 @@ export async function isAuthenicated (req,res,next){
         jwt.verify(token, process.env.SECRETKEY)
         next()
 
+        
+
 
 }
