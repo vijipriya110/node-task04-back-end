@@ -1,5 +1,5 @@
 import express from "express";
-import { addUser, deleteJwtToken, generateJwtToken, getToken, getUser, sendEmail, updatedUserData, } from "../Controllers/users.js";
+import { addUser, generateJwtToken, getToken, getUser, sendEmail, updatedUserData, } from "../Controllers/users.js";
 import bcrypt, { compare } from "bcrypt";
 import crypto from "crypto";
 import { getTestMessageUrl } from "nodemailer";
@@ -77,11 +77,11 @@ router.post("/login", async (req, res) => {
 
 router.get("/logout", async (req, res) => {
     try {
-        const token = req.headers["x-auth-token"]
+        var deleteToken = req.headers["x-auth-token"];
+        
+        deleteToken=undefined;
+        console.log(deleteToken)
 
-        const deleteToken =  await deleteJwtToken(token)
-        // console.log(deleteToken)
-        if(deleteToken)
         return res.status(200).json({data:"token deleted..!"})
         
 

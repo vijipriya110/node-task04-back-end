@@ -25,13 +25,7 @@ export function addUser(userInfo) {
     .collection("users")
     .insertOne(userInfo)
 }
-export function deleteJwtToken(token) {
-  return client 
-  .db("basicdata")
-  .collection("users")
-  .deleteOne({token:token})
-  
-}
+
 
 export function generateJwtToken(id) {
   return jwt.sign({id}, process.env.SECRETKEY, { expiresIn: "30d" })
