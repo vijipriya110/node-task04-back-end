@@ -63,7 +63,8 @@ router.post("/login", async (req, res) => {
             return res.status(400).json({ data: "Invlid (password)Authorization.." })
         }
         // to generate jwt token
-        const token = await generateJwtToken(user._id)
+        const token = await generateJwtToken(user.id)
+        
         return res.status(200).json({ data: "loged in sucessfully", token: token })
 
 
@@ -79,6 +80,7 @@ router.get("/logout", async (req, res) => {
         const token = req.headers["x-auth-token"]
 
         const deleteToken =  await deleteJwtToken(token)
+        // console.log(deleteToken)
         if(deleteToken)
         return res.status(200).json({data:"token deleted..!"})
         
@@ -184,23 +186,6 @@ router.post("/reset-new-password/:token/:id", async (req, res) => {
 
     }
 })
-
-// router.get("/updatepassword",async(req,res)=>{
-//     try {
-
-//         const user = await getUser(req.)
-//         if(!user){
-//             return res.status(400).send("user doesn't exist");
-//         }
-
-
-//     } catch (error) {
-//         console.log(error)
-//         res.status(500).json({ data: "Internal server error", error: error })
-
-//     }
-// })
-
 
 
 export const userRouter = router

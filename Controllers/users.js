@@ -34,7 +34,7 @@ export function deleteJwtToken(token) {
 }
 
 export function generateJwtToken(id) {
-  return jwt.sign({ id }, process.env.SECRETKEY, { expiresIn: "30d" })
+  return jwt.sign({id}, process.env.SECRETKEY, { expiresIn: "30d" })
 
 }
 export function getToken(token) {
