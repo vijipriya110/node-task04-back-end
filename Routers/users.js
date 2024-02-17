@@ -1,5 +1,5 @@
 import express from "express";
-import { addUser, generateJwtToken,  getToken,  getUser, getUserId, logoutUser, sendEmail,   } from "../Controllers/users.js";
+import { addUser, generateJwtToken, getToken, getTokenbyId, getUser, getUserById, getUserId, logoutUser, sendEmail, updatedUserData,    } from "../Controllers/users.js";
 import bcrypt, { compare } from "bcrypt";
 import crypto from "crypto";
 // import { getTestMessageUrl } from "nodemailer";
@@ -48,6 +48,14 @@ router.post("/signup", async (req, res) => {
 
 router.post("/login", async (req, res) => {
     try {
+        // const user = await getUser(req.body.email)
+        // const {id} = req.params
+        // const userId = await getUserById(user._id)
+
+        // if (userId) {
+        //     return res.status(200).json({ data: "Invalid (id)Authorization.."})
+        // }
+
         const user = await getUser(req.body.email);
         // is user is valid
         if (!user) {
@@ -122,32 +130,75 @@ try {
     const user = await getUser(req.body.email)
     if (!user)
     return res.status(400).send("user with given email doesn't exist");
+    
+    var token = generateJwtToken(user._id)
+    if(token) token = undefined;
+    
+    console.log(token)
+        // if (token) {
+        //     return res.status(200).json({ data: "token is available", token: token })
+        // }
+        
+
+    // if (token) {
+    //     return res.status(200).json({ data: "yes", token })
+    // }
 
     //generte  random token
-    const restToken = crypto.randomBytes(32)
+    
+    
+    // if(!token){
+        // const restToken = crypto.randomBytes(32).toString('hex')/
 
-    const enResetToken = crypto.createHash('sha256').update(restToken).digest('hex')
+        // const enResetToken = crypto.createHash('sha256').update(restToken).digest('hex')
+
+        // const resetUser = await {...req.body, resetToken:restToken}
+        // await new token({userId: user._id, token: restToken, createdAt: Date.now(),
+        //   }).save();/
+
+        // const result = await addUser(resetUser)
+
+        // console.log(result)
+    // }
+
+        //     return res.status(200).json({ result, data: "User Added Sucessfully"})}
+       
+        // return res.status(200).json({data:"tnk gen done",token:enResetToken})
+    // }
+
+    // const restToken = crypto.randomBytes(32)
+
+    // const enResetToken = crypto.createHash('sha256').update(restToken).digest('hex')
 
     // console.log(restToken, enResetToken)
-    // const result = await addUser(enResetToken)
+    // const token = await addUser(enResetToken)
 
-    // return res.status(200).json({data:"tnk gen done",enResetToken:enResetToken})
+    // return res.status(200).json({data:"tnk gen done",token:enResetToken})
 
+    
+    //  generte  random token
+    const restToken = crypto.randomBytes(32).toString('hex')
+    const resetUser = await{...user._id, restToken:restToken}
+    // return res.status(200).json({data:"sucess",resetUser})
+
+      
     //link
 
-    const resetUrl = `${req.protocol}://${req.get('host')}/users/forgotpassword/${enResetToken}`;
-    console.log(resetUrl)
+                // const enResetToken = crypto.createHash('sha256').update(restToken).digest('hex')
+                 const resetUrl = `${req.protocol}://${req.get('host')}/users/rest-new-password/${restToken}/${user._id}`;
+                 console.log(resetUrl);
 
-    const msg = `this is reset url  \n\n${resetUrl}\n\n`
+                  const msg = `this is reset url  \n\n${resetUrl}\n\n`
 
-    await sendEmail({
-        email: user.email,
-        subject:'this is sub',
-        msg : msg
+         await sendEmail({
+           email: user.email,
+           subject:'this is sub',
+           msg : msg
         
-    });
+          })
+          
 
-    return res.status(200).json({data:"the email send"})
+           return res.status(200).json({data:"the email send"})
     
     
 } catch (error) {
@@ -157,7 +208,76 @@ try {
 }
 })
 
+router.post("/rest-new-password/:token/:id",async(req,res)=>{
+    try {
+        // const token = crypto.createHash('sha256').update(req.params.resetToken).digest('hex');
+        const {resetToken} =req.params
 
+        const reciveToken = await getToken(resetToken);
+        if (!reciveToken)
+            return res.status(400).send("user doesn't exist");
+
+            const user = await getUser(req.body.email);
+            
+            // is user is valid
+            if (!user) {
+                return res.status(400).json({ data: "Invalid (mail)Authorization.." })
+            }
+       
+            user.email = req.body.email                  
+            user.password = req.body.password;
+            user.confirmPassword = req.body.confirmPassword;
+            user.resetToken = undefined;
+            user.passwordChngedAtTime = Date.now();
+
+            
+
+            const salt = await bcrypt.genSalt(10);
+            const hashedPassword = await bcrypt.hash(req.body.password, salt)
+            const hashedUser = await { ...req.body, password: hashedPassword }
+
+            const validPassword = await bcrypt.compare(req.body.password, hashedPassword) 
+            if (!validPassword) {
+                return res.status(200).json({ data: "Invlid (password)Authorization.." })
+            }
+            
+            const {id} = req.params;
+        const updatedData = hashedUser;
+        
+        if(!id || !updatedData){
+            res.status(400).json({data:"user not found"})
+            return;
+    
+        }
+        const result = await updatedUserData(id, updatedData)
+
+            const logintoken = generateJwtToken(user._id)
+        return res.status(200).json({ data: "rest sucessfully",result, token: logintoken,hashedPassword })
+
+        
+
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({ data: "Internal server error", error: error })
+        
+    }
+})
+
+// router.get("/updatepassword",async(req,res)=>{
+//     try {
+        
+//         const user = await getUser(req.)
+//         if(!user){
+//             return res.status(400).send("user doesn't exist");
+//         }
+
+        
+//     } catch (error) {
+//         console.log(error)
+//         res.status(500).json({ data: "Internal server error", error: error })
+        
+//     }
+// })
 
 
 

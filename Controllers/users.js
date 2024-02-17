@@ -1,7 +1,23 @@
 import { client } from "../db.js";
+import { ObjectId } from "bson";
 import jwt from "jsonwebtoken"
 import crypto from "crypto-js";
 import nodemailer from "nodemailer";
+
+export function updatedUserData(id, updatedData){
+  return client
+  .db("basicdata")
+  .collection("users")
+  .findOneAndUpdate({_id: new ObjectId(id)},{$set:updatedData})
+
+}
+
+export function getUserById(id){
+  return client
+  .db("basicdata")
+  .collection("users")
+  .findOne({_id: new ObjectId(id)})
+}
 
 
 export function getUser(userEmail){
@@ -26,7 +42,15 @@ export function getToken(token){
     return client
     .db("basicdata")
     .collection("users")
-    .findOne(token)
+    .findOne({resetToken:token})
+
+}
+
+export function getTokenbyId(token){
+  return client
+  .db("basicdata")
+  .collection("users")
+  .findOne(token)
 
 }
 
