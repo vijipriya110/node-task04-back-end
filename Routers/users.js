@@ -74,6 +74,25 @@ router.post("/login", async (req, res) => {
 
     }
 })
+router.post("/sendotp", async(req, res) => {
+    try {
+        const user = await getUser(req.body.email);
+        // is user is valid
+        if (!user) {
+            return res.status(400).json({ data: "Invalid (mail)Authorization.." })
+        }
+        //generate OTP
+        const OTP = Math.floor(Math.random() * 9000 + 1000);
+        console.log(OTP);
+        return res.status(200).json({ data: "OTP send sucessfully" ,OTP})
+
+
+
+        
+    } catch (error) {
+        
+    }
+})
 
 router.get("/logout", async (req, res) => {
     try {
