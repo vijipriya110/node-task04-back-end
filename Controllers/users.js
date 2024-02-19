@@ -12,6 +12,7 @@ export function updatedUserData(id, updatedData) {
 
 }
 
+
 export function getUser(userEmail) {
   return client
     .db("basicdata")
@@ -24,6 +25,12 @@ export function addUser(userInfo) {
     .db("basicdata")
     .collection("users")
     .insertOne(userInfo)
+}
+export function getOTP(OTP) {
+  return client
+    .db("basicdata")
+    .collection("users")
+    .findOne(OTP)
 }
 
 

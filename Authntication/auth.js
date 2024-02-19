@@ -3,6 +3,7 @@ import jwt from "jsonwebtoken";
 
 export async function isAuthenicated (req,res,next){
     const token = req.headers["x-auth-token"]
+    // const OTP = req.headers[""]
         // console.log("token....",token)
         if(!token){
             return res.status(400).json({data:"Invalid athorization"})

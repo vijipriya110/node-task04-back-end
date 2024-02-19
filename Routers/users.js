@@ -1,5 +1,5 @@
 import express from "express";
-import { addUser, generateJwtToken, getToken, getUser, sendEmail, updatedUserData, } from "../Controllers/users.js";
+import { addUser, generateJwtToken, getOTP, getToken, getUser, sendEmail, updatedUserData, } from "../Controllers/users.js";
 import bcrypt, { compare } from "bcrypt";
 import crypto from "crypto";
 import { getTestMessageUrl } from "nodemailer";
@@ -147,6 +147,61 @@ router.post("/forgotpassword", async (req, res) => {
         res.status(500).json({ data: "Internal server error", error: error })
     }
 })
+router.post("/resetpassword", async (req, res)=>{
+    try {
+        const {OTP} = req.params;
+        const veriotp = await getOTP(OTP)
+        // console.log(veriotp)
+        
+        const user = await getUser(req.body.email);
+
+        // is user is valid
+        if (!user) {
+            return res.status(400).json({ data: "Invalid (mail)Authorization.." })
+        }
+        
+        //to change the new password
+
+        user.email = req.body.email
+        user.password = req.body.password;
+        user.confirmPassword = req.body.confirmPassword;
+        user.resetToken = undefined;
+        user.passwordChngedAtTime = Date.now();
+
+
+        //to generate hash password
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(req.body.password, salt)
+        const hashedUser = await { ...req.body, password: hashedPassword }
+
+        const validPassword = await bcrypt.compare(req.body.password, hashedPassword)
+        if (!validPassword) {
+            return res.status(200).json({ data: "Invlid (password)Authorization.." })
+        }
+        //update the newpassword 
+        
+        const updatedData = hashedUser;
+        const result = await updatedUserData(user._id, updatedData)
+
+        if (!user._id || !updatedData) {
+            res.status(400).json({ data: "user not found" })
+            return;
+
+        }
+        // const result = await updatedUserData(id, updatedData)
+
+        const logintoken = generateJwtToken(user._id)
+        return res.status(200).json({ data: "reset sucessfully..!", result, token: logintoken, hashedPassword })
+
+
+
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({ data: "Internal server error", error: error })
+
+        }
+    
+})
 
 router.post("/reset-new-password/:token/:id", async (req, res) => {
     try {
@@ -184,15 +239,16 @@ router.post("/reset-new-password/:token/:id", async (req, res) => {
             return res.status(200).json({ data: "Invlid (password)Authorization.." })
         }
         //update the newpassword 
-        const { id } = req.params;
+        
         const updatedData = hashedUser;
+        const result = await updatedUserData(user._id, updatedData)
 
-        if (!id || !updatedData) {
+        if (!user._id || !updatedData) {
             res.status(400).json({ data: "user not found" })
             return;
 
         }
-        const result = await updatedUserData(id, updatedData)
+        // const result = await updatedUserData(id, updatedData)
 
         const logintoken = generateJwtToken(user._id)
         return res.status(200).json({ data: "reset sucessfully..!", result, token: logintoken, hashedPassword })
