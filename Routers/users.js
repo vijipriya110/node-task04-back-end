@@ -6,6 +6,7 @@ import { getTestMessageUrl } from "nodemailer";
 
 const router = express.Router()
 
+//create API FOR SIGNUP TO USER
 router.post("/signup", async (req, res) => {
     try {
 
@@ -27,11 +28,7 @@ router.post("/signup", async (req, res) => {
             const result = await addUser(hashedUser)
             return res.status(200).json({
                 result, data: "User Added Sucessfully"
-                // password : req.body.password,
-                // hashedPassword : hashedPassword,
-                // salt : salt
-                // userInfo : userInfo//(or)
-                // userInfo : hashedUser
+                
             })
 
         }
@@ -45,12 +42,10 @@ router.post("/signup", async (req, res) => {
 
 })
 
+//create API FOR USER LOGIN
 router.post("/login", async (req, res) => {
     try {
-        // const user = await getUser(req.body.email)
-        // const {id} = req.params
-        // const userId = await getUserById(user._id)
-
+        
         const user = await getUser(req.body.email);
         // is user is valid
         if (!user) {
@@ -74,26 +69,8 @@ router.post("/login", async (req, res) => {
 
     }
 })
-router.post("/sendotp", async(req, res) => {
-    try {
-        const user = await getUser(req.body.email);
-        // is user is valid
-        if (!user) {
-            return res.status(400).json({ data: "Invalid (mail)Authorization.." })
-        }
-        //generate OTP
-        const OTP = Math.floor(Math.random() * 9000 + 1000);
-        console.log(OTP);
-        return res.status(200).json({ data: "OTP send sucessfully" ,OTP})
 
-
-
-        
-    } catch (error) {
-        
-    }
-})
-
+// create API FOR LOGOUT THE USER
 router.get("/logout", async (req, res) => {
     try {
         var deleteToken = req.headers["x-auth-token"];
@@ -111,6 +88,7 @@ router.get("/logout", async (req, res) => {
     }
 })
 
+//create API FOR FORGOT THE PASSWORD AND SEND RESET LINK using nodemailer
 router.post("/forgotpassword", async (req, res) => {
     try {
         // find user
@@ -147,62 +125,8 @@ router.post("/forgotpassword", async (req, res) => {
         res.status(500).json({ data: "Internal server error", error: error })
     }
 })
-router.post("/resetpassword", async (req, res)=>{
-    try {
-        const {OTP} = req.params;
-        const veriotp = await getOTP(OTP)
-        // console.log(veriotp)
-        
-        const user = await getUser(req.body.email);
 
-        // is user is valid
-        if (!user) {
-            return res.status(400).json({ data: "Invalid (mail)Authorization.." })
-        }
-        
-        //to change the new password
-
-        user.email = req.body.email
-        user.password = req.body.password;
-        user.confirmPassword = req.body.confirmPassword;
-        user.resetToken = undefined;
-        user.passwordChngedAtTime = Date.now();
-
-
-        //to generate hash password
-        const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash(req.body.password, salt)
-        const hashedUser = await { ...req.body, password: hashedPassword }
-
-        const validPassword = await bcrypt.compare(req.body.password, hashedPassword)
-        if (!validPassword) {
-            return res.status(200).json({ data: "Invlid (password)Authorization.." })
-        }
-        //update the newpassword 
-        
-        const updatedData = hashedUser;
-        const result = await updatedUserData(user._id, updatedData)
-
-        if (!user._id || !updatedData) {
-            res.status(400).json({ data: "user not found" })
-            return;
-
-        }
-        // const result = await updatedUserData(id, updatedData)
-
-        const logintoken = generateJwtToken(user._id)
-        return res.status(200).json({ data: "reset sucessfully..!", result, token: logintoken, hashedPassword })
-
-
-
-    } catch (error) {
-        console.log(error)
-        res.status(500).json({ data: "Internal server error", error: error })
-
-        }
-    
-})
-
+//create PI FOR VERIFY LINK, RESETPASSWORD AND UPDATE THE NEW PASSWORD
 router.post("/reset-new-password/:token/:id", async (req, res) => {
     try {
         // check the reset token is valid
