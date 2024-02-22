@@ -112,14 +112,14 @@ router.post("/forgotpassword", async (req, res) => {
         const resetUrl = `${req.protocol}://${req.get('host')}/users/reset-new-password/${restToken}/${user._id}`;
         console.log(resetUrl);
 
-        const msg = `this is reset url  \n\n${resetUrl}\n\n`
+        const msg = `This one is reset url  ${resetUrl}`
         await sendEmail({
             email: user.email,
-            subject: 'this is sub',
+            subject: 'Reset link for verifiction of forgot password',
             msg: msg
 
         })
-        return res.status(200).json({ data: "Mail send sucessfully" })
+        return res.status(200).json({ data: "Mail send sucessfully",msg})
     } catch (error) {
         console.log(error)
         res.status(500).json({ data: "Internal server error", error: error })

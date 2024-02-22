@@ -57,7 +57,7 @@ export const sendEmail = async (options) => {
   });
 
   var mailOptions = {
-    from: 'youremail@gmail.com',
+    from: 'vijipriya@gmail.com',
     to: 'friend@yahoo.com',
     subject: options.subject,
     text: options.msg
